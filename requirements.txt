@@ -1,6 +1,6 @@
 fastapi
 pandas
-tensorflow==2.6.0
+tensorflow==2.0.0
 uvicorn
 h5py==2.10.0
 python-multipart
