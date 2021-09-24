@@ -1,0 +1,8 @@
+python-3.7.1
+fastapi
+pandas
+tensorflow==2.6.0
+uvicorn
+h5py==2.10.0
+python-multipart
+tensorflow_hub==0.12.0
