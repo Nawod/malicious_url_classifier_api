@@ -14,6 +14,9 @@ data = pd.read_csv('archive/url_train.csv')
 tokenizer = Tokenizer(num_words=10000, split=' ')
 tokenizer.fit_on_texts(data['url'].values)
 
+#load the saved model
+loaded_model = tf.keras.models.load_model(('mal_url_model.h5'),custom_objects={'KerasLayer':hub.KerasLayer}) 
+
 
 @app.get('/') #basic get view
 def basic_view():
@@ -37,7 +40,6 @@ def token(text):
 
 def predict(text:str = Form(...)):
     # clean_text = preProcess_data(text) #clean the text
-    loaded_model = tf.keras.models.load_model(('mal_url_model.h5'),custom_objects={'KerasLayer':hub.KerasLayer}) #load the saved model
     embeded_text =  token(text)
     predictions = loaded_model.predict(embeded_text) #predict the text
     
