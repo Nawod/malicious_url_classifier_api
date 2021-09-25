@@ -29,7 +29,7 @@ def take_inp():
 #tokenize inputs
 def token(text):
     X = tokenizer.texts_to_sequences(pd.Series(text).values)
-    Y = pad_sequences(X, maxlen=20)
+    Y = pad_sequences(X, maxlen=200)
 
     return Y
 
@@ -50,7 +50,6 @@ def predict(text:str = Form(...)):
          t_sentiment = 'good'
     return { #return the dictionary for endpoint
          "INPUT": text,
-         "PREDICTION": predictions,
          "OUTPUT" : t_sentiment
          
     }
