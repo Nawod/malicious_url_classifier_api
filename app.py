@@ -3,10 +3,17 @@ from fastapi import FastAPI, Form
 import pandas as pd
 from starlette.responses import HTMLResponse
 import tensorflow as tf
-import re
 import tensorflow_hub as hub
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 app = FastAPI()
+
+#import and train word tokenizer
+data = pd.read_csv('archive/url_train.csv')
+tokenizer = Tokenizer(num_words=10000, split=' ')
+tokenizer.fit_on_texts(data['url'].values)
+
 
 @app.get('/') #basic get view
 def basic_view():
@@ -16,26 +23,22 @@ def basic_view():
 def take_inp():
     return '''
         <form method="post">
-        <input maxlength="28" name="text" type="text" value="https://github.com/Nawod/NDS" />
+        <input maxlength="28" name="text" type="text" value="https github com Nawod NDS" />
         <input type="submit" />'''
 
-def preProcess_data(text):
-    new_text = re.sub('[^a-zA-z0-9\s]',' ',text)
-    return new_text
+#tokenize inputs
+def token(text):
+    X = tokenizer.texts_to_sequences(pd.Series(text).values)
+    Y = pad_sequences(X, maxlen=20)
 
-def embedding(text):
-    embedding = 'https://tfhub.dev/google/nnlm-en-dim128/2'
-    url_hub_layer = hub.KerasLayer(embedding, input_shape=[], dtype=tf.string, trainable= True)
-    vector = url_hub_layer([text])
-
-    return vector
+    return Y
 
 @app.post('/predict')
 
 def predict(text:str = Form(...)):
     # clean_text = preProcess_data(text) #clean the text
-    loaded_model = tf.keras.models.load_model('malicious_url_model.h5') #load the saved model
-    embeded_text =  embedding(text)
+    loaded_model = tf.keras.models.load_model(('mal_url_model.h5'),custom_objects={'KerasLayer':hub.KerasLayer}) #load the saved model
+    embeded_text =  token(text)
     predictions = loaded_model.predict(embeded_text) #predict the text
     
     sentiment = (predictions > 0.5).astype(np.int) #calculate the index of max sentiment
